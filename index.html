@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Bayterek</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-[#fafafa] p-4 min-h-screen flex flex-col">
+    <header class="border border-gray-200 rounded-2xl px-8 py-2 flex items-center justify-between">
+    <!-- Логотип слева -->
+    <div class="flex items-center">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center">
+            <img src="./public/Group.svg" alt="Alarm icon" class="w-15 h-15">
+        </div>
+    </div>
+
+    <!-- Название сайта по центру -->
+    <div class="flex-1 flex justify-center">
+        <h1 class="text-2xl font-bold tracking-wide">Bayterek BC | Monitoring</h1>
+    </div>
+
+    <!-- Кнопки справа -->
+    <div class="flex items-center gap-3">
+    <button id="notificationBtn" class="notification bg-blue-600 rounded-xl">
+        <div class="bell-container">
+            <div class="bell"></div>
+        </div>
+    </button>
+    <button class="bg-blue-600 text-white px-2 py-2 rounded-xl font-medium flex items-center gap-2">
+        <img src="./public/alarm.svg" alt="Alarm icon" class="w-7 h-7 brightness-0 invert">
+    </button>
+</div>
+</header>
+<!-- Replace the existing tabs and table section with this -->
+<main class="mt-4 flex-1 flex flex-col">
+    <div class="border border-gray-200 rounded-2xl px-8 py-4 flex items-center justify-between">
+        <!-- Tabs on the left -->
+        <div class="inline-flex rounded-xl border border-gray-200 p-1">
+            <button id="evacuatedBtn" onclick="showTab('evacuated')" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium">
+                Вышли
+            </button>
+            <button id="notEvacuatedBtn" onclick="showTab('notEvacuated')" class="px-4 py-2 rounded-lg text-gray-600 font-medium">
+                Не вышли
+            </button>
+        </div>
+
+        <!-- Counters on the right -->
+        <div class="flex items-center gap-4">
+            <div class="text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
+                <span class="font-medium">Общее количество:</span>
+                <span id="totalCount" class="ml-2 font-semibold">40</span>
+            </div>
+            <div class="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg">
+                <div id="evacuatedIndicator" class="w-2 h-2 rounded-full bg-green-500"></div>
+                <span class="text-gray-600">Вышли:</span>
+                <span id="evacuatedCount" class="font-semibold text-green-600">0</span>
+            </div>
+            <div class="flex items-center gap-2 bg-red-50 px-4 py-2 rounded-lg">
+                <div id="notEvacuatedIndicator" class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span class="text-gray-600">Не вышли:</span>
+                <span id="notEvacuatedCount" class="font-semibold text-red-600">40</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Секция "Вышли" -->
+        <div id="evacuatedSection" class="mt-4 flex-1 flex flex-col">
+            <div class="border border-gray-200 rounded-2xl flex-1 flex flex-col">
+                <!-- Search bar with calendar and refresh -->
+                <div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                    <div class="relative max-w-md">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="search" 
+                            id="evacuatedSearch" 
+                            class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="Поиск по ФИО..." 
+                        />
+                    </div>
+
+                    <!-- Controls group -->
+                    <div class="flex items-center gap-3">
+                        <!-- Date picker -->
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="datepicker" 
+                                class="block w-44 p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                                placeholder="Выберите дату"
+                                readonly
+                            />
+                            <div class="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Refresh button -->
+                        <button 
+                            id="refreshButton"
+                            class="p-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Datepicker Container -->
+                <div id="datepicker-container" class="hidden absolute mt-16 right-8 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                    <div class="flex items-center justify-between p-4">
+                        <button id="prevMonth" class="p-1 hover:bg-gray-100 rounded">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                        <div id="currentMonth" class="text-sm font-medium"></div>
+                        <button id="nextMonth" class="p-1 hover:bg-gray-100 rounded">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 p-4 border-t border-gray-200">
+                        <div class="text-center text-xs font-medium text-gray-500">Пн</div>
+                        <div class="text-center text-xs font-medium text-gray-500">Вт</div>
+                        <div class="text-center text-xs font-medium text-gray-500">Ср</div>
+                        <div class="text-center text-xs font-medium text-gray-500">Чт</div>
+                        <div class="text-center text-xs font-medium text-gray-500">Пт</div>
+                        <div class="text-center text-xs font-medium text-gray-500">Сб</div>
+                        <div class="text-center text-xs font-medium text-gray-500">Вс</div>
+                    </div>
+                    <div id="days-container" class="grid grid-cols-7 gap-1 p-4"></div>
+                    <div class="flex justify-end gap-2 p-4 border-t border-gray-200">
+                        <button id="cancelButton" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded">
+                            Отмена
+                        </button>
+                        <button id="applyButton" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700">
+                            Применить
+                        </button>
+                    </div>
+                </div>
+
+        <!-- Table content -->
+        <div class="flex-1 overflow-auto">
+            <table id="evacuatedTable" class="min-w-full">
+    <thead class="bg-white">
+        <tr>
+            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase border-b">ФИО</th>
+            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase border-b">Кабинет</th>
+            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase border-b">Номер телефона</th>
+            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase border-b">Этаж</th>
+            <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase border-b">Время эвакуации</th>
+        </tr>
+    </thead>
+    <tbody class="bg-white">
+                    <!-- Table rows will be dynamically inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Пагинация -->
+        <div class="p-4 border-t border-gray-200">
+            <nav aria-label="Page navigation">
+                <ul id="evacuatedPagination" class="flex items-center justify-center -space-x-px h-8 text-sm">
+                    <!-- Pagination will be inserted here -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+    <!-- Секция "Не вышли" -->
+    <div id="notEvacuatedSection" class="mt-4 flex-1 flex flex-col hidden">
+            <div class="border border-gray-200 rounded-2xl flex-1 flex flex-col">
+                <!-- Найдите секцию "Не вышли" и замените блок поиска на следующий код: -->
+
+<!-- Search bar with calendar and refresh -->
+<div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+    <div class="relative max-w-md">
+        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div>
+        <input 
+            type="search" 
+            id="notEvacuatedSearch" 
+            class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
+            placeholder="Поиск по ФИО..." 
+        />
+    </div>
+
+    <!-- Controls group -->
+    <div class="flex items-center gap-3">
+        <!-- Date picker -->
+        <div class="relative">
+            <input 
+                type="text" 
+                id="datepicker2" 
+                class="block w-44 p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                placeholder="Выберите дату"
+                readonly
+            />
+            <div class="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Refresh button -->
+        <button 
+            id="refreshButton2"
+            class="p-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
+        >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Datepicker Container -->
+<div id="datepicker-container2" class="hidden absolute mt-16 right-8 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+    <div class="flex items-center justify-between p-4">
+        <button id="prevMonth2" class="p-1 hover:bg-gray-100 rounded">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+        <div id="currentMonth2" class="text-sm font-medium"></div>
+        <button id="nextMonth2" class="p-1 hover:bg-gray-100 rounded">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+    <div class="grid grid-cols-7 gap-1 p-4 border-t border-gray-200">
+        <div class="text-center text-xs font-medium text-gray-500">Пн</div>
+        <div class="text-center text-xs font-medium text-gray-500">Вт</div>
+        <div class="text-center text-xs font-medium text-gray-500">Ср</div>
+        <div class="text-center text-xs font-medium text-gray-500">Чт</div>
+        <div class="text-center text-xs font-medium text-gray-500">Пт</div>
+        <div class="text-center text-xs font-medium text-gray-500">Сб</div>
+        <div class="text-center text-xs font-medium text-gray-500">Вс</div>
+    </div>
+    <div id="days-container2" class="grid grid-cols-7 gap-1 p-4"></div>
+    <div class="flex justify-end gap-2 p-4 border-t border-gray-200">
+        <button id="cancelButton2" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded">
+            Отмена
+        </button>
+        <button id="applyButton2" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700">
+            Применить
+        </button>
+    </div>
+</div>
+
+                <div class="flex-1 overflow-auto">
+                    <table id="notEvacuatedTable" class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">ФИО</th>
+                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Кабинет</th>
+                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Номер телефона</th>
+                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Этаж</th>
+                        <th scope="col" class="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Действие</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200"></tbody>
+            </table>
+        </div>
+        <!-- Пагинация -->
+                <div class="p-4 border-t border-gray-200">
+                    <nav aria-label="Page navigation">
+                        <ul id="notEvacuatedPagination" class="flex items-center justify-center -space-x-px h-8 text-sm">
+                            <!-- Pagination will be inserted here -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal -->
+<div id="notificationModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Последняя эвакуация</h3>
+                <button onclick="closeNotificationModal()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-4">
+                <div id="notificationContent" class="text-sm text-gray-500">
+                    <!-- Content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<audio id="notificationSound" preload="auto">
+    <source src="./public/sounds/sountnotif.mp3" type="audio/mpeg">
+</audio>
+
+<script src="./src/script.js" defer></script>
+</body>
+</html>

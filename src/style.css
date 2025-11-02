@@ -1,0 +1,155 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap');
+
+
+
+/* Custom CSS for enhanced styling */
+body {
+    font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #fafafa; /* Tailwind's gray-100 */
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes notification-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.notification-animate {
+    animation: notification-pulse 2s infinite;
+}
+
+/* Bell notification styles */
+.bell {
+    border: 2.17px solid white;
+    border-radius: 10px 10px 0 0;
+    width: 15px;
+    height: 17px;
+    background: transparent;
+    display: block;
+    position: relative;
+    top: -3px;
+}
+
+.bell::before,
+.bell::after {
+    content: "";
+    background: white;
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 2.17px;
+}
+
+.bell::before {
+    top: 100%;
+    width: 20px;
+}
+
+.bell::after {
+    top: calc(100% + 4px);
+    width: 7px;
+}
+
+.notification {
+    background: transparent;
+    border: none;
+    padding: 15px 15px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 300ms;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification.has-notification::before {
+    content: "1";
+    color: white;
+    font-size: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #22c55e; /* Green-500 */
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+
+
+/* Keep the bell animation keyframes */
+@keyframes bell-animation {
+    20% {
+        transform: rotate(15deg);
+    }
+    40% {
+        transform: rotate(-15deg);
+        scale: 1.1;
+    }
+    60% {
+        transform: rotate(10deg);
+        scale: 1.1;
+    }
+    80% {
+        transform: rotate(-10deg);
+    }
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Add this to your existing styles */
+#refreshButton svg {
+    transition: transform 0.5s ease-in-out;
+}
+
+#refreshButton:active svg {
+    transform: rotate(360deg);
+}
+
+.table-container {
+            max-height: 60vh;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-container th,
+        .table-container td {
+            text-align: left;
+            padding: 12px 24px;
+        }
+        .pagination button:hover:not(:disabled) {
+            background-color: #f1f5f9;
+        }
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
