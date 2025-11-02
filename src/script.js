@@ -512,25 +512,20 @@ function refreshData() {
         ? 'notEvacuated' 
         : 'evacuated';
 
-    // Анимация для обеих кнопок обновления
+    // Анимация для обеих кнопок
     ['refreshButton', 'refreshButton2'].forEach(btnId => {
         const btn = document.getElementById(btnId);
         if (btn) {
-            const icon = btn.querySelector('svg');
-            if (icon) {
-                icon.style.transition = 'transform 0.5s';
-                icon.style.transform = 'rotate(360deg)';
-                setTimeout(() => {
-                    icon.style.transform = 'rotate(0deg)';
-                }, 500);
-            }
+            btn.classList.add('rotating');
+            setTimeout(() => {
+                btn.classList.remove('rotating');
+            }, 500);
         }
     });
 
     // Обновляем данные текущей активной секции
     changePage(1, currentSection);
 }
-
 
 // Переключение табов
 function showTab(tabName) {
@@ -833,15 +828,24 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedDateVar: selectedDate2
     });
 
-    // Инициализация кнопок обновления
-    const refreshButton = document.getElementById('refreshButton');
-    if (refreshButton) {
-        refreshButton.addEventListener('click', refreshData);
+    // Добавляем обработчики для кнопок обновления
+    const refreshButton1 = document.getElementById('refreshButton');
+    const refreshButton2 = document.getElementById('refreshButton2');
+
+    if (refreshButton1) {
+        refreshButton1.addEventListener('click', refreshData);
+        refreshButton1.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Предотвращаем стандартное поведение
+            refreshData();
+        });
     }
 
-    const refreshButton2 = document.getElementById('refreshButton2');
     if (refreshButton2) {
         refreshButton2.addEventListener('click', refreshData);
+        refreshButton2.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Предотвращаем стандартное поведение
+            refreshData();
+        });
     }
 
     // Начальная отрисовка
@@ -851,4 +855,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Запуск симуляции
     setInterval(simulateAutoEvacuation, 10000);
+
+    
 });
