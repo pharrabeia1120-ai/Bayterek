@@ -6,7 +6,7 @@
 /* Custom CSS for enhanced styling */
 body {
     font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #fafafa; /* Tailwind's gray-100 */
+    background-color: #fff5e9; /* Tailwind's gray-100 */
 }
 
 @keyframes pulse {
@@ -153,3 +153,78 @@ body {
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        /* Добавьте новые стили для анимации */
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.evacuation-timer-wrapper {
+    --border-radius: 8px;
+    position: relative;
+}
+
+.evacuation-timer {
+    position: relative;
+    background-color: rgba(239, 246, 255, 0.9);
+    border-radius: var(--border-radius);
+    border: 2px solid transparent;
+    overflow: hidden;
+}
+
+.evacuation-timer .dots-border {
+    position: absolute;
+    inset: -2px;
+    border-radius: var(--border-radius);
+    background: conic-gradient(
+        from 180deg at 50% 50%,
+        #60A5FA 0deg,
+        transparent 60deg,
+        transparent 300deg,
+        #60A5FA 360deg
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.evacuation-timer.active {
+    border-color: #60A5FA;
+}
+
+.evacuation-timer.active .dots-border {
+    opacity: 1;
+    animation: rotate 2s linear infinite;
+}
+
+.evacuation-timer.active .time-value {
+    color: #1D4ED8;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.timer-content {
+    background-color: rgba(239, 246, 255, 0.9);
+    border-radius: var(--border-radius);
+}

@@ -1,4 +1,3 @@
-// Конфигурация пагинации
 const ITEMS_PER_PAGE = 10;
 let currentPage = {
     evacuated: 1,
@@ -17,17 +16,180 @@ let lastEvacuatedPerson = null;
 let currentDate = new Date();
 let selectedDate = null;
 let selectedDate2 = null;
+let isAlertActive = false;
+let autoEvacuationInterval = null;
+let alertSound = null;
+let evacuationStartTime = null;
+let evacuationEndTime = null;
+let evacuationTimer = null;
+let isFirstAlert = true;
 
-// Утилита для генерации случайного времени
-function getRandomTime() {
+// Функция для обновления времени
+function updateDateTime() {
+    const timeElement = document.getElementById('currentTime');
+    const dateElement = document.getElementById('currentDate');
+    
     const now = new Date();
-    const startOfDay = new Date(now).setHours(9, 0, 0);
-    const randomTime = new Date(startOfDay + Math.random() * (now - startOfDay));
-    return randomTime.toLocaleTimeString('ru-RU', {
+    
+    // Форматируем время
+    const timeString = now.toLocaleTimeString('ru-RU', {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit'
     });
+    
+    // Форматируем дату
+    const dateString = now.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    if (timeElement) timeElement.textContent = timeString;
+    if (dateElement) dateElement.textContent = dateString;
+}
+
+// Добавьте функцию для форматирования времени
+function formatDuration(ms) {
+    if (!ms) return '--:--:--';
+    
+    const seconds = Math.floor((ms / 1000) % 60);
+    const minutes = Math.floor((ms / (1000 * 60)) % 60);
+    const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+
+    return [hours, minutes, seconds]
+        .map(v => v.toString().padStart(2, '0'))
+        .join(':');
+}
+
+// Функции управления тревогой
+function startAlert() {
+    isAlertActive = true;
+    const alertButton = document.getElementById('alertButton');
+    const alertIcon = document.getElementById('alertIcon');
+    const timerContainer = document.querySelector('.evacuation-timer');
+    
+    if (alertButton && alertIcon) {
+        // Change button style
+        alertButton.classList.remove('bg-blue-600');
+        alertButton.classList.add('bg-red-600', 'animate-pulse');
+        
+        // Change icon
+        alertIcon.src = './public/stop.svg';
+        
+        // Start auto evacuation only if it's not running
+        if (!autoEvacuationInterval) {
+            autoEvacuationInterval = setInterval(() => {
+                if (Math.random() < 0.2 && notEvacuatedPeople.length > 0) {
+                    simulateAutoEvacuation();
+                }
+            }, 5000);
+        }
+
+        // Start alert sound
+        playAlertSound();
+    }
+
+    if (timerContainer) {
+        timerContainer.classList.add('active');
+    }
+
+    // Set evacuation start time only if this is the first alert
+    if (isFirstAlert) {
+        evacuationStartTime = new Date();
+        document.getElementById('evacuationStartTime').textContent = 
+            evacuationStartTime.toLocaleTimeString('ru-RU');
+        document.getElementById('evacuationEndTime').textContent = '--:--:--';
+        isFirstAlert = false;
+    }
+
+    // Start or resume duration timer if it's not running
+    if (!evacuationTimer) {
+        const startTime = Date.now() - (evacuationEndTime ? evacuationEndTime - evacuationStartTime : 0);
+        evacuationTimer = setInterval(() => {
+            const duration = Date.now() - startTime;
+            document.getElementById('evacuationDuration').textContent = 
+                formatDuration(duration);
+        }, 1000);
+    }
+}
+
+const timerContainer = document.querySelector('.evacuation-timer');
+    const spinner = document.getElementById('evacuationSpinner');
+    
+    if (timerContainer && spinner) {
+        timerContainer.classList.add('active');
+        spinner.classList.remove('hidden');
+    }
+
+    function stopAlert() {
+    isAlertActive = false;
+    const alertButton = document.getElementById('alertButton');
+    const alertIcon = document.getElementById('alertIcon');
+    const timerContainer = document.querySelector('.evacuation-timer');
+
+    // Update end time without resetting start time
+    evacuationEndTime = new Date();
+    document.getElementById('evacuationEndTime').textContent = 
+        evacuationEndTime.toLocaleTimeString('ru-RU');
+
+    // Stop timer without resetting duration
+    if (evacuationTimer) {
+        clearInterval(evacuationTimer);
+        evacuationTimer = null;
+    }
+    
+    if (alertButton && alertIcon) {
+        // Reset button style
+        alertButton.classList.remove('bg-red-600', 'animate-pulse');
+        alertButton.classList.add('bg-blue-600');
+        
+        // Reset icon
+        alertIcon.src = './public/radar.svg';
+
+        // Stop auto evacuation
+        if (autoEvacuationInterval) {
+            clearInterval(autoEvacuationInterval);
+            autoEvacuationInterval = null;
+        }
+
+        // Stop alert sound
+        stopAlertSound();
+    }
+
+    if (timerContainer) {
+        timerContainer.classList.remove('active');
+    }
+}
+
+// Обновите функцию automaticAlertTrigger
+function automaticAlertTrigger() {
+    if (!isAlertActive) {
+        startAlert();
+    }
+}
+
+function toggleAlert() {
+    if (isAlertActive) {
+        stopAlert();
+    } else {
+        startAlert();
+    }
+}
+
+function playAlertSound() {
+    if (!alertSound) {
+        alertSound = new Audio('./public/sounds/alert.mp3');
+        alertSound.loop = true;
+    }
+    alertSound.play().catch(error => console.error('Error playing alert sound:', error));
+}
+
+function stopAlertSound() {
+    if (alertSound) {
+        alertSound.pause();
+        alertSound.currentTime = 0;
+    }
 }
 
 // Генерация мок-данных
@@ -69,40 +231,47 @@ function generateMockData(count, includeEvacTime = false) {
 // Пагинация данных
 function paginateData(items, page, searchTerm = '') {
     const filteredItems = searchTerm 
-        ? items.filter(person => person.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        ? items.filter(person => {
+            const searchLower = searchTerm.toLowerCase();
+            const personValues = [
+                person.name,
+                person.room,
+                person.phone,
+                person.floor,
+                person.evacuationTime || ''
+            ].map(val => String(val).toLowerCase());
+            
+            return personValues.some(value => value.includes(searchLower));
+        })
         : items;
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return filteredItems.slice(start, start + ITEMS_PER_PAGE);
-}
 
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return {
+        items: filteredItems.slice(start, start + ITEMS_PER_PAGE),
+        total: filteredItems.length
+    };
+}
 // Фильтрация по дате
 function filterByDateRange(items) {
-    if (!selectedDate && !selectedDate2) return items;
+    // Если даты не выбраны, показываем данные за текущий день
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
     return items.filter(person => {
         if (!person.evacuationDate) return false;
         
         const evacDate = new Date(person.evacuationDate);
-        evacDate.setHours(0, 0, 0, 0); // Нормализуем время
+        evacDate.setHours(0, 0, 0, 0);
 
-        // Если выбрана только одна дата
-        if (selectedDate && !selectedDate2) {
+        // Если выбрана дата, используем её
+        if (selectedDate) {
             const checkDate = new Date(selectedDate);
             checkDate.setHours(0, 0, 0, 0);
             return evacDate.getTime() === checkDate.getTime();
         }
 
-        // Если выбраны обе даты
-        if (selectedDate && selectedDate2) {
-            const startDate = new Date(selectedDate);
-            startDate.setHours(0, 0, 0, 0);
-            const endDate = new Date(selectedDate2);
-            endDate.setHours(23, 59, 59, 999);
-
-            return evacDate >= startDate && evacDate <= endDate;
-        }
-
-        return true;
+        // Если дата не выбрана, показываем данные за текущий день
+        return evacDate.getTime() === today.getTime();
     });
 }
 
@@ -190,27 +359,25 @@ function renderTable(people, tableId, showButton = false) {
 
 // Смена страницы
 function changePage(page, sectionId) {
-    let data = sectionId === 'evacuated' ? evacuatedPeople : notEvacuatedPeople;
+    const data = sectionId === 'evacuated' ? evacuatedPeople : notEvacuatedPeople;
     const searchTerm = searchTerms[sectionId];
     
-    if (sectionId === 'evacuated' && (selectedDate || selectedDate2)) {
-        data = filterByDateRange(data);
-    }
+    // Применяем фильтрацию и пагинацию
+    const { items: pageData, total: totalItems } = paginateData(data, page, searchTerm);
     
-    const filteredData = searchTerm 
-        ? data.filter(person => person.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        : data;
-    
-    const totalPages = Math.max(1, Math.ceil(filteredData.length / ITEMS_PER_PAGE));
+    // Обновляем текущую страницу
+    const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
     currentPage[sectionId] = Math.max(1, Math.min(page, totalPages));
     
+    // Рендерим таблицу
     renderTable(
-        paginateData(data, currentPage[sectionId], searchTerm),
+        pageData,
         `${sectionId}Table`,
         sectionId === 'notEvacuated'
     );
     
-    updatePagination(filteredData.length, currentPage[sectionId], sectionId);
+    // Обновляем пагинацию
+    updatePagination(totalItems, currentPage[sectionId], sectionId);
     updateCounters();
 }
 
@@ -226,13 +393,17 @@ function evacuatePerson(name) {
         minute: '2-digit',
         second: '2-digit'
     });
-    person.evacuationDate = now; // Устанавливаем дату эвакуации
+    person.evacuationDate = now; // Сохраняем полную дату
     person.isNew = true;
     evacuatedPeople.unshift(person);
     
     updateTables();
     showNotification(person);
     
+    if (notEvacuatedPeople.length === 0 && isAlertActive) {
+        stopAlert();
+    }
+
     setTimeout(() => {
         person.isNew = false;
         updateTables();
@@ -357,11 +528,17 @@ function showTab(tabName) {
     }
 }
 
-// Симуляция автоматической эвакуации
 function simulateAutoEvacuation() {
     if (notEvacuatedPeople.length > 0) {
+        // Start alert if not active
+        if (!isAlertActive) {
+            startAlert();
+        }
+
         const randomIndex = Math.floor(Math.random() * notEvacuatedPeople.length);
         evacuatePerson(notEvacuatedPeople[randomIndex].name);
+    } else if (isAlertActive) {
+        stopAlert();
     }
 }
 
@@ -464,14 +641,31 @@ function createCalendar({
 
     applyButton.addEventListener('click', () => {
     if (selectedDateVar) {
-        datepicker.value = selectedDateVar.toLocaleDateString('ru-RU');
+        const formattedDate = selectedDateVar.toLocaleDateString('ru-RU');
+        datepicker.value = formattedDate;
+        
         if (datepickerId === 'datepicker') {
-            selectedDate = selectedDateVar;
+            // Если выбран текущий день, очищаем фильтр
+            const today = new Date();
+            if (selectedDateVar.toDateString() === today.toDateString()) {
+                selectedDate = null;
+                datepicker.value = 'Сегодня';
+            } else {
+                selectedDate = selectedDateVar;
+            }
         } else {
             selectedDate2 = selectedDateVar;
         }
-        updateTables(); // Обновляем таблицы с новым фильтром
+    } else {
+        datepicker.value = 'Сегодня';
+        if (datepickerId === 'datepicker') {
+            selectedDate = null;
+        } else {
+            selectedDate2 = null;
+        }
     }
+    
+    updateTables();
     datepickerContainer.classList.add('hidden');
 });
 
@@ -484,6 +678,28 @@ function createCalendar({
     render();
 }
 
+    // Функция автоматического запуска тревоги (например, при срабатывании камеры)
+function automaticAlertTrigger() {
+    if (!isAlertActive) {
+        startAlert();
+        // Запускаем ускоренную эвакуацию если она еще не запущена
+        if (!autoEvacuationInterval) {
+            autoEvacuationInterval = setInterval(() => {
+                if (notEvacuatedPeople.length > 0) {
+                    for(let i = 0; i < 3; i++) {
+                        if (notEvacuatedPeople.length > 0) {
+                            const randomIndex = Math.floor(Math.random() * notEvacuatedPeople.length);
+                            evacuatePerson(notEvacuatedPeople[randomIndex].name);
+                        }
+                    }
+                } else {
+                    stopAlert();
+                }
+            }, 2000);
+        }
+    }
+}
+
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     // Инициализация мок-данных
@@ -493,16 +709,49 @@ document.addEventListener('DOMContentLoaded', () => {
     ['evacuated', 'notEvacuated'].forEach(sectionId => {
         const searchInput = document.getElementById(`${sectionId}Search`);
         if (searchInput) {
-            let searchTimeout;
             searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    searchTerms[sectionId] = e.target.value.toLowerCase();
-                    changePage(1, sectionId);
-                }, 300);
+                searchTerms[sectionId] = e.target.value;
+                changePage(1, sectionId);
             });
         }
     });
+
+    // Инициализация времени эвакуации
+    const startTimeEl = document.getElementById('evacuationStartTime');
+    const endTimeEl = document.getElementById('evacuationEndTime');
+    const durationEl = document.getElementById('evacuationDuration');
+
+    if (startTimeEl && endTimeEl && durationEl) {
+        startTimeEl.textContent = '--:--:--';
+        endTimeEl.textContent = '--:--:--';
+        durationEl.textContent = '--:--:--';
+    }
+
+    // Reset evacuation state
+    isFirstAlert = true;
+    evacuationStartTime = null;
+    evacuationEndTime = null;
+
+// Установка начального значения даты
+    const datepicker = document.getElementById('datepicker');
+    if (datepicker) {
+        datepicker.value = 'Сегодня';
+    }
+    const datepicker2 = document.getElementById('datepicker2');
+    if (datepicker2) {
+        datepicker2.value = 'Сегодня';
+    }
+
+// Инициализация и обновление даты/времени
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Инициализация кнопки тревоги
+    const alertButton = document.getElementById('alertButton');
+    if (alertButton) {
+        alertButton.addEventListener('click', toggleAlert);
+    }
+
 
     // Инициализация звука уведомления
     notificationSound = document.getElementById('notificationSound');

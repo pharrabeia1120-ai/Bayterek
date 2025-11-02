@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BC Bayterek</title>
+    <link rel="icon" type="image/x-icon" href="./public/Group.svg">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
@@ -15,9 +16,14 @@
 <body class="bg-[#fafafa] p-4 min-h-screen flex flex-col">
     <header class="border border-gray-200 rounded-2xl px-8 py-2 flex items-center justify-between">
     <!-- Логотип слева -->
-    <div class="flex items-center">
+   <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center">
             <img src="./public/Group.svg" alt="Alarm icon" class="w-15 h-15">
+        </div>
+        <!-- Добавляем блок с датой и временем -->
+        <div class="flex flex-col">
+            <span id="currentTime" class="text-lg font-semibold text-gray-800"></span>
+            <span id="currentDate" class="text-sm text-gray-600"></span>
         </div>
     </div>
 
@@ -33,9 +39,9 @@
             <div class="bell"></div>
         </div>
     </button>
-    <button class="bg-blue-600 text-white px-2 py-2 rounded-xl font-medium flex items-center gap-2">
-        <img src="./public/alarm.svg" alt="Alarm icon" class="w-7 h-7 brightness-0 invert">
-    </button>
+    <button id="alertButton" class="bg-blue-600 text-white px-2 py-2 rounded-xl font-medium flex items-center gap-2">
+    <img id="alertIcon" src="./public/radar.svg" alt="Alarm icon" class="w-7.5 h-7.5 brightness-0 invert">
+</button>
 </div>
 </header>
 <!-- Replace the existing tabs and table section with this -->
@@ -74,21 +80,41 @@
         <div id="evacuatedSection" class="mt-4 flex-1 flex flex-col">
             <div class="border border-gray-200 rounded-2xl flex-1 flex flex-col">
                 <!-- Search bar with calendar and refresh -->
-                <div class="px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                <div class="px-6 py-3 border-b border-gray-200 flex items-center justify-between">
                     <div class="relative max-w-md">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                            </svg>
-                        </div>
-                        <input 
-                            type="search" 
-                            id="evacuatedSearch" 
-                            class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
-                            placeholder="Поиск по ФИО..." 
-                        />
-                    </div>
+        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div>
+        <input 
+    type="search" 
+    id="evacuatedSearch"
+    class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
+    placeholder="Поиск по всем полям..." 
+/>
+    </div>
 
+   <!-- Центральная часть с временем эвакуации -->
+<div class="evacuation-timer-wrapper">
+    <div class="evacuation-timer">
+        <div class="dots-border"></div>
+        <div class="timer-content flex items-center gap-4 px-4 py-2 relative z-10">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-600">Начало:</span>
+                <span id="evacuationStartTime" class="time-value text-sm font-semibold">--:--:--</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-600">Конец:</span>
+                <span id="evacuationEndTime" class="time-value text-sm font-semibold">--:--:--</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-600">Длительность:</span>
+                <span id="evacuationDuration" class="time-value text-sm font-semibold">--:--:--</span>
+            </div>
+        </div>
+    </div>
+</div>
                     <!-- Controls group -->
                     <div class="flex items-center gap-3">
                         <!-- Date picker -->
@@ -108,10 +134,7 @@
                         </div>
 
                         <!-- Refresh button -->
-                        <button 
-                            id="refreshButton"
-                            class="p-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
-                        >
+                        <button id="refreshButton" class="p-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
@@ -196,11 +219,11 @@
             </svg>
         </div>
         <input 
-            type="search" 
-            id="notEvacuatedSearch" 
-            class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
-            placeholder="Поиск по ФИО..." 
-        />
+    type="search" 
+    id="notEvacuatedSearch" 
+    class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" 
+    placeholder="Поиск по всем полям..." 
+/>
     </div>
 
     <!-- Controls group -->
