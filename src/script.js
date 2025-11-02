@@ -73,6 +73,7 @@ function startAlert() {
         // Change button style
         alertButton.classList.remove('bg-blue-600');
         alertButton.classList.add('bg-red-600', 'animate-pulse');
+        alertButton.classList.add('active');
         
         // Change icon
         alertIcon.src = './public/stop.svg';
@@ -143,6 +144,7 @@ const timerContainer = document.querySelector('.evacuation-timer');
         // Reset button style
         alertButton.classList.remove('bg-red-600', 'animate-pulse');
         alertButton.classList.add('bg-blue-600');
+        alertButton.classList.remove('active');
         
         // Reset icon
         alertIcon.src = './public/radar.svg';
@@ -253,25 +255,41 @@ function paginateData(items, page, searchTerm = '') {
 }
 // Фильтрация по дате
 function filterByDateRange(items) {
-    // Если даты не выбраны, показываем данные за текущий день
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    if (!selectedDate && !selectedDate2) {
+        // Если даты не выбраны, показываем данные за текущий день
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        return items.filter(person => {
+            if (!person.evacuationDate) return false;
+            
+            const evacDate = new Date(person.evacuationDate);
+            evacDate.setHours(0, 0, 0, 0);
+            return evacDate.getTime() === today.getTime();
+        });
+    }
+
+    // Если выбрана дата, фильтруем по ней
     return items.filter(person => {
         if (!person.evacuationDate) return false;
         
         const evacDate = new Date(person.evacuationDate);
         evacDate.setHours(0, 0, 0, 0);
 
-        // Если выбрана дата, используем её
-        if (selectedDate) {
+        if (selectedDate && !selectedDate2) {
+            // Фильтрация по одной дате
             const checkDate = new Date(selectedDate);
             checkDate.setHours(0, 0, 0, 0);
             return evacDate.getTime() === checkDate.getTime();
         }
 
-        // Если дата не выбрана, показываем данные за текущий день
-        return evacDate.getTime() === today.getTime();
+        // Фильтрация по диапазону дат
+        const startDate = new Date(selectedDate);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(selectedDate2);
+        endDate.setHours(23, 59, 59, 999);
+
+        return evacDate >= startDate && evacDate <= endDate;
     });
 }
 
@@ -359,10 +377,15 @@ function renderTable(people, tableId, showButton = false) {
 
 // Смена страницы
 function changePage(page, sectionId) {
-    const data = sectionId === 'evacuated' ? evacuatedPeople : notEvacuatedPeople;
+    let data = sectionId === 'evacuated' ? evacuatedPeople : notEvacuatedPeople;
     const searchTerm = searchTerms[sectionId];
     
-    // Применяем фильтрацию и пагинацию
+    // Применяем фильтр по дате только для таблицы эвакуированных
+    if (sectionId === 'evacuated') {
+        data = filterByDateRange(data);
+    }
+    
+    // Применяем поиск
     const { items: pageData, total: totalItems } = paginateData(data, page, searchTerm);
     
     // Обновляем текущую страницу
@@ -485,20 +508,29 @@ function updateCounters() {
 
 // Обновление данных
 function refreshData() {
-    const btn = document.getElementById('refreshButton');
-    if (!btn) return;
+    const currentSection = document.getElementById('evacuatedSection')?.classList.contains('hidden') 
+        ? 'notEvacuated' 
+        : 'evacuated';
 
-    const icon = btn.querySelector('svg');
-    if (icon) {
-        icon.style.transition = 'transform 0.5s';
-        icon.style.transform = 'rotate(360deg)';
-        setTimeout(() => {
-            icon.style.transform = 'rotate(0deg)';
-        }, 500);
-    }
+    // Анимация для обеих кнопок обновления
+    ['refreshButton', 'refreshButton2'].forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            const icon = btn.querySelector('svg');
+            if (icon) {
+                icon.style.transition = 'transform 0.5s';
+                icon.style.transform = 'rotate(360deg)';
+                setTimeout(() => {
+                    icon.style.transform = 'rotate(0deg)';
+                }, 500);
+            }
+        }
+    });
 
-    updateTables();
+    // Обновляем данные текущей активной секции
+    changePage(1, currentSection);
 }
+
 
 // Переключение табов
 function showTab(tabName) {

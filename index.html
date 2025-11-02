@@ -32,16 +32,17 @@
         <h1 class="text-2xl font-bold tracking-wide">Bayterek BC | Monitoring</h1>
     </div>
 
-    <!-- Кнопки справа -->
-    <div class="flex items-center gap-3">
+   <!-- Кнопки справа -->
+<!-- Кнопки справа -->
+<div class="flex items-center gap-3">
     <button id="notificationBtn" class="notification bg-blue-600 rounded-xl">
         <div class="bell-container">
             <div class="bell"></div>
         </div>
     </button>
-    <button id="alertButton" class="bg-blue-600 text-white px-2 py-2 rounded-xl font-medium flex items-center gap-2">
-    <img id="alertIcon" src="./public/radar.svg" alt="Alarm icon" class="w-7.5 h-7.5 brightness-0 invert">
-</button>
+    <button id="alertButton" class="bg-blue-600 text-white px-3 py-2 rounded-xl font-medium flex items-center gap-2 h-[48px]">
+        <img id="alertIcon" src="./public/radar.svg" alt="Alarm icon" class="w-7 h-7 brightness-0 invert">
+    </button>
 </div>
 </header>
 <!-- Replace the existing tabs and table section with this -->
@@ -134,11 +135,14 @@
                         </div>
 
                         <!-- Refresh button -->
-                        <button id="refreshButton" class="p-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                        </button>
+                        <button 
+    id="refreshButton" 
+    class="h-[42px] w-[42px] flex items-center justify-center text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
+>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+</button>
                     </div>
                 </div>
 
@@ -246,13 +250,13 @@
 
         <!-- Refresh button -->
         <button 
-            id="refreshButton2"
-            class="p-2.5 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
-        >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-        </button>
+    id="refreshButton2" 
+    class="h-[42px] w-[42px] flex items-center justify-center text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-blue-300"
+>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+</button>
     </div>
 </div>
 

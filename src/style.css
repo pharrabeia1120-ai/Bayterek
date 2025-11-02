@@ -228,3 +228,44 @@ body {
     background-color: rgba(239, 246, 255, 0.9);
     border-radius: var(--border-radius);
 }
+
+/* Добавьте эти стили после стилей notification */
+.alert-btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.alert-btn:hover {
+    background-color: rgb(37 99 235);
+}
+
+.alert-container {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alert-btn.active {
+    background-color: rgb(239 68 68);
+    animation: alert-pulse 2s infinite;
+}
+
+@keyframes alert-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
