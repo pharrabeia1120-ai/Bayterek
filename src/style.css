@@ -127,9 +127,15 @@ body {
 
 /* Добавьте новые стили для кнопок обновления */
 .refresh-button {
-    -webkit-tap-highlight-color: transparent; /* Убирает синее выделение на iOS */
-    outline: none; /* Убирает стандартное выделение */
-    user-select: none; /* Предотвращает выделение текста */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+@media (hover: none) {
+    .refresh-button:active {
+        background-color: #f3f4f6;
+    }
 }
 
 .refresh-button:focus {

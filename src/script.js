@@ -513,9 +513,9 @@ function refreshData() {
         : 'evacuated';
 
     // Анимация для обеих кнопок
-    ['refreshButton', 'refreshButton2'].forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
+    document.querySelectorAll('.refresh-button').forEach(btn => {
+        const svg = btn.querySelector('svg');
+        if (svg) {
             btn.classList.add('rotating');
             setTimeout(() => {
                 btn.classList.remove('rotating');
@@ -829,24 +829,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Добавляем обработчики для кнопок обновления
-    const refreshButton1 = document.getElementById('refreshButton');
-    const refreshButton2 = document.getElementById('refreshButton2');
-
-    if (refreshButton1) {
-        refreshButton1.addEventListener('click', refreshData);
-        refreshButton1.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Предотвращаем стандартное поведение
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('.refresh-button');
+        if (target) {
+            e.preventDefault();
             refreshData();
-        });
-    }
+        }
+    });
 
-    if (refreshButton2) {
-        refreshButton2.addEventListener('click', refreshData);
-        refreshButton2.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Предотвращаем стандартное поведение
+    document.addEventListener('touchstart', function(e) {
+        const target = e.target.closest('.refresh-button');
+        if (target) {
+            e.preventDefault();
             refreshData();
-        });
-    }
+        }
+    }, { passive: false });
 
     // Начальная отрисовка
     updateTables();
